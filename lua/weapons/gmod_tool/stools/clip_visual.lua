@@ -15,13 +15,13 @@ TOOL.ClientConVar["r"] = "0"
 
 
 if CLIENT then
-	language.Add( "Tool.visual.name", "Visual Clip Tool" )
-	language.Add( "Tool.visual.desc", "Visually Clip Models" )
-	language.Add( "Tool.visual.0", "Primary: Define a clip plane      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Remove Clips" )
-	language.Add( "Tool.visual.1", "Primary: Click on a second spot      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Restart" )
-	language.Add( "Tool.visual.2", "Primary: Select the side of the prop you want to keep      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Restart" )
-	language.Add( "Tool.visual.3", "Primary: Define a new plane based off of another prop      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Restart")
-	language.Add( "Tool.visual.4", "Aim at other props:      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Restart")
+	language.Add( "Tool.clip_visual.name", "Visual Clip Tool" )
+	language.Add( "Tool.clip_visual.desc", "Visually Clip Models" )
+	language.Add( "Tool.clip_visual.0", "Primary: Define a clip plane      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Remove Clips" )
+	language.Add( "Tool.clip_visual.1", "Primary: Click on a second spot      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Restart" )
+	language.Add( "Tool.clip_visual.2", "Primary: Select the side of the prop you want to keep      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Restart" )
+	language.Add( "Tool.clip_visual.3", "Primary: Define a new plane based off of another prop      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Restart")
+	language.Add( "Tool.clip_visual.4", "Aim at other props:      Secondary: Clip Model (+Shift to toggle inside rendering of a prop)      Reload: Restart")
 
 	language.Add( "undone_clip", "Undone Clip" )
 else
@@ -44,9 +44,9 @@ if SERVER then
 			local dist = -(self.Normal:Dot(pos-linepoint1))/(self.Normal:Dot(linepoint2-linepoint1))
 			ang = ent:WorldToLocalAngles(self.Normal:Angle())
 
-			self:GetOwner():ConCommand("visual_distance ".. tostring(dist))
-			self:GetOwner():ConCommand("visual_p ".. tostring(ang.p))
-			self:GetOwner():ConCommand("visual_y ".. tostring(ang.y))
+			self:GetOwner():ConCommand("clip_visual_distance ".. tostring(dist))
+			self:GetOwner():ConCommand("clip_visual_p ".. tostring(ang.p))
+			self:GetOwner():ConCommand("clip_visual_y ".. tostring(ang.y))
 
 			--net.Start("clipping_preview_clip")
 			--	net.WriteFloat( ang.p )
@@ -59,7 +59,7 @@ if SERVER then
 
 	net.Receive("clipping_cliptool_mode" , function(_,ply)
 		local mode = net.ReadInt(8)
-		local tool = ply:GetTool("visual")
+		local tool = ply:GetTool("clip_visual")
 		tool.Function = mode
 
 		if mode == 2 then 
@@ -105,9 +105,9 @@ function TOOL:LeftClick( trace )
 		--	net.WriteDouble( dist )
 		--net.Send( self:GetOwner() )
 
-		self:GetOwner():ConCommand("visual_distance ".. tostring(dist))
-		self:GetOwner():ConCommand("visual_p ".. tostring(ang.p))
-		self:GetOwner():ConCommand("visual_y ".. tostring(ang.y))
+		self:GetOwner():ConCommand("clip_visual_distance ".. tostring(dist))
+		self:GetOwner():ConCommand("clip_visual_p ".. tostring(ang.p))
+		self:GetOwner():ConCommand("clip_visual_y ".. tostring(ang.y))
 
 	elseif self.Function == 2 then
 		self.Points[#self.Points+1] = trace.HitPos
@@ -148,9 +148,9 @@ function TOOL:LeftClick( trace )
 			--	net.WriteDouble( dist )
 			--net.Send( self:GetOwner() )
 
-			self:GetOwner():ConCommand("visual_distance ".. tostring(dist))
-			self:GetOwner():ConCommand("visual_p ".. tostring(ang.p))
-			self:GetOwner():ConCommand("visual_y ".. tostring(ang.y))
+			self:GetOwner():ConCommand("clip_visual_distance ".. tostring(dist))
+			self:GetOwner():ConCommand("clip_visual_p ".. tostring(ang.p))
+			self:GetOwner():ConCommand("clip_visual_y ".. tostring(ang.y))
 		end
 	end
 	return true
@@ -205,7 +205,7 @@ end
 
 if CLIENT then
 	function TOOL.BuildCPanel( pnl )
-		pnl:Help("#Tool.visual.desc")
+		pnl:Help("#Tool.clip_visual.desc")
 
 		local clipfunctions = vgui.Create("DListView",pnl)
 		local tmp = clipfunctions:AddColumn("Plane functions")
@@ -225,7 +225,8 @@ if CLIENT then
 		end
 		pnl:AddPanel(clipfunctions)
 
-		local temp = pnl:AddControl("Slider", { Label = "Distance", Type = "float", Min = "-100", Max = "100", Command = "visual_distance" } )
+		local temp = pnl:AddControl("Slider", { 
+			Label = "Distance", Type = "float", Min = "-100", Max = "100", Command = "clip_visual_distance" } )
 		local temp2 = vgui.Create("DNumberScratch")
 		temp2:SetParent(temp)
 		temp2:SetMax(100)
@@ -233,12 +234,13 @@ if CLIENT then
 		temp2:SetPos( 120 , 10)
 		temp2:SetDecimals(4)
 		temp2.OnValueChanged = function(self)
-			RunConsoleCommand("visual_distance",self:GetFloatValue())
+			RunConsoleCommand("clip_visual_distance",self:GetFloatValue())
 		end
 		--temp2:SetShouldDrawScreen(true)
 
 
-		temp = pnl:AddControl("Slider", { Label = "Pitch", Type = "float", Min = "-180", Max = "180", Command = "visual_p" } )
+		temp = pnl:AddControl("Slider", { 
+			Label = "Pitch", Type = "float", Min = "-180", Max = "180", Command = "clip_visual_p" } )
 		temp2 = vgui.Create("DNumberScratch")
 		temp2:SetParent(temp)
 		temp2:SetMax(180)
@@ -246,12 +248,13 @@ if CLIENT then
 		temp2:SetDecimals(4)
 		temp2:SetPos( 120 , 10)
 		temp2.OnValueChanged = function(self)
-			RunConsoleCommand("visual_p",self:GetFloatValue())
+			RunConsoleCommand("clip_visual_p",self:GetFloatValue())
 		end
 		--temp2:SetShouldDrawScreen(true)
 
 
-		temp = pnl:AddControl("Slider", { Label = "Yaw", Type = "float", Min = "-180", Max = "180", Command = "visual_y" } )
+		temp = pnl:AddControl("Slider", { 
+			Label = "Yaw", Type = "float", Min = "-180", Max = "180", Command = "clip_visual_y" } )
 		temp2 = vgui.Create("DNumberScratch")
 		temp2:SetParent(temp)
 		temp2:SetMax(180)
@@ -259,11 +262,13 @@ if CLIENT then
 		temp2:SetDecimals(4)
 		temp2:SetPos( 120 , 10)
 		temp2.OnValueChanged = function(self)
-			RunConsoleCommand("visual_y",self:GetFloatValue())
+			RunConsoleCommand("clip_visual_y",self:GetFloatValue())
 		end
 		--temp2:SetShouldDrawScreen(true)
 
-		pnl:AddControl("Button", {Label = "Reset",Command = "visual_reset"})	
-		pnl:AddControl("Slider", { Label = "Max Clips Per Prop", Type = "int", Min = "0", Max = "25", Command = "max_clips_per_prop" } )
+		pnl:AddControl("Button", {
+			Label = "Reset",Command = "clip_visual_reset"})	
+		pnl:AddControl("Slider", { 
+			Label = "Max Clips Per Prop", Type = "int", Min = "0", Max = "25", Command = "max_clips_per_prop" } )
 	end
 end

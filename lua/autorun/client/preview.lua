@@ -1,20 +1,20 @@
 local norm , d = Angle(0,0,0) , 0 
 
-cvars.AddChangeCallback("visual_p",function(_,_,new)
+cvars.AddChangeCallback("clip_visual_p",function(_,_,new)
 	norm.p = tonumber(new) or 0	
 end)
-cvars.AddChangeCallback("visual_y",function(_,_,new)
+cvars.AddChangeCallback("clip_visual_y",function(_,_,new)
 	norm.y = tonumber(new) or 0
 end)
-cvars.AddChangeCallback("visual_distance",function(_,_,new)
+cvars.AddChangeCallback("clip_visual_distance",function(_,_,new)
 	d = tonumber(new) or 0	
 end)
 
 
-concommand.Add("visual_reset",function()
-	RunConsoleCommand("visual_p",0)
-	RunConsoleCommand("visual_y",0)
-	RunConsoleCommand("visual_distance",0)
+concommand.Add("clip_visual_reset",function()
+	RunConsoleCommand("clip_visual_p",0)
+	RunConsoleCommand("clip_visual_y",0)
+	RunConsoleCommand("clip_visual_distance",0)
 
 	d = 0 
 	norm = Angle(0,0,0)
@@ -22,9 +22,9 @@ end)
 
 
 net.Receive( "clipping_preview_clip" , function()
-	RunConsoleCommand("visual_p",norm.p)
-	RunConsoleCommand("visual_y",norm.y)
-	RunConsoleCommand("visual_distance",d)
+	RunConsoleCommand("clip_visual_p",norm.p)
+	RunConsoleCommand("clip_visual_y",norm.y)
+	RunConsoleCommand("clip_visual_distance",d)
 
 	norm = Angle( net.ReadFloat() , net.ReadFloat() , net.ReadFloat() )
 	d = net.ReadDouble()
@@ -66,7 +66,7 @@ local function drawpreview()
 	end
 
 	if !IsValid(LocalPlayer()) or !IsValid(aiment) then return end
-	if GetConVarString("gmod_toolmode") != "visual" or LocalPlayer():GetActiveWeapon():GetClass() != "gmod_tool" or aiment:IsPlayer() then return end		
+	if GetConVarString("gmod_toolmode") != "clip_visual" or LocalPlayer():GetActiveWeapon():GetClass() != "gmod_tool" or aiment:IsPlayer() then return end		
 
 	ent_SetNoDraw(aiment,true)
 
