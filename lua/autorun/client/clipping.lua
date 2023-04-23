@@ -112,10 +112,17 @@ local IsValid = IsValid
 local n , enabled , curclips
 function RenderOverride(self)
 	if !IsValid(self) then return end
+
+	local clips = Clips[self]
+	if clips == nil then 
+		ent_DrawModel(self)
+		return
+	end
+
 	enabled = render_EnableClipping( true )
 
 	for i = 1 , self.MaxClips do
-		curclips = Clips[self][i]
+		curclips = clips[i]
 		n = ang_Forward( ent_LocalToWorldAngles(self , curclips[1] ) )
 		
 		render_PushCustomClipPlane(n, vec_Dot(ent_LocalToWorld( self , curclips[3] ) + n * curclips[2] , n ) )
